@@ -3,11 +3,22 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "cSpell.words": [
     "autodocs",
+    "catergoria",
     "codegen",
+    "dayjs",
+    "Fabricacao",
     "gtag",
+    "Habilitacao",
+    "hookform",
+    "latin",
+    "observacao",
     "postbuild",
+    "roboto",
     "svgr",
+    "tanstack",
     "TTFB",
+    "veiculos",
+    "Veiculos",
     "zustand"
   ]
 }

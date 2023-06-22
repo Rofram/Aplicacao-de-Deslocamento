@@ -1,30 +1,13 @@
-import type { StorybookConfig } from '@storybook/nextjs';
-
+import type { StorybookConfig } from "@storybook/nextjs";
 const config: StorybookConfig = {
-  stories: ["../src/stories/*.mdx", "../src/stories/*.stories.@(ts|tsx)"],
-  addons: ["@storybook/addon-links", "@storybook/addon-essentials", "@storybook/addon-interactions"],
+  stories: ["../stories/**/*.mdx", "../stories/**/*.stories.@(jsx|tsx)"],
+  addons: ["@storybook/addon-links", "@storybook/addon-essentials", "@storybook/addon-interactions", "@storybook/addon-mdx-gfm"],
   framework: {
     name: "@storybook/nextjs",
     options: {}
   },
-  webpackFinal: async (config) => {
-    // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module?.rules?.find((rule) => {
-      const test = (rule as { test: RegExp }).test
-      if (!test) return false
-      return test.test('.svg');
-    }) as { [key: string]: any }
-    // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i
-    config.module?.rules?.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack']
-    })
-    return config
-  },
   docs: {
-    autodocs: true
+    autodocs: "tag"
   }
 };
-
 export default config;

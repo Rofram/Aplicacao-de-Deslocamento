@@ -10,16 +10,14 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withPlugins([withPWA], {
-  experimental: {
-    appDir: true,
-    webVitalsAttribution: ['CLS', 'LCP'],
-  },
-  webpack(config) {
-    config.module.rules.push({
-        test: /\.svg$/,
-        use: ['@svgr/webpack', 'url-loader']
-    });
-    return config;
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/clientes',
+        permanent: false,
+      },
+    ]
   },
 })
 
