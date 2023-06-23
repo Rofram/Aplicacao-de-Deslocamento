@@ -1,5 +1,5 @@
 import { QUERY } from "@/constants";
-import { Cliente } from "@/interfaces";
+import type { Cliente } from "@/entities";
 import { createCliente, deleteCliente, getAllClientes, updateCliente } from "@/services/cliente.service";
 import { getAxiosData } from "@/utils/getAxiosData";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +35,11 @@ export function useClienteHook() {
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [isDialogDeleteOpen, setIsDialogDeleteOpen] = useState(false);
-  const { data, isLoading } = useQuery({ queryKey: [QUERY.ALL_CLIENTES], queryFn: getAxiosData(getAllClientes) });
+  const { 
+    data: clientes = [], 
+    isLoading: isLoadingClientes, 
+    refetch 
+  } = useQuery({ queryKey: [QUERY.ALL_CLIENTES], queryFn: getAxiosData(getAllClientes) });
   const queryClient = useQueryClient();
   const { 
     register: createRegister, 
@@ -50,6 +54,16 @@ export function useClienteHook() {
     reset: updateReset,
     setValue: updateSetValue
   } = useForm<z.infer<typeof updateClienteSchema>>({ resolver: zodResolver(updateClienteSchema) });
+
+  async function handleSync() {
+    const toastRef = toast('Sincronizando clientes...', { isLoading: true, autoClose: false });
+    const { status } = await refetch();
+    if (status === 'success') {
+      toast.update(toastRef, { type: toast.TYPE.INFO, render: 'Clientes sincronizados.', isLoading: false, autoClose: 2000 });
+    } else {
+      toast.update(toastRef, { type: toast.TYPE.ERROR, render: 'Erro ao sincronizar clientes.', isLoading: false, autoClose: 2000 });
+    }
+  }
 
   const handleSubmitCreate = createHandleSubmit(async (data) => {
     const toastRef = toast('Criando cliente...', { isLoading: true, autoClose: false });
@@ -124,8 +138,9 @@ export function useClienteHook() {
   }
 
   return {
-    clientes: data ?? [],
-    isClientesLoading: isLoading,
+    clientes,
+    handleSync,
+    isLoadingClientes,
     selectedCliente,
     isModalCreateOpen,
     isModalEditOpen,

@@ -11,11 +11,12 @@ function CondutorPage() {
 export default CondutorPage;
 
 export async function getStaticProps() {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient();
   await queryClient.prefetchQuery([QUERY.ALL_CONDUTORES], getAxiosData(getAllCondutores))
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 60,
   }
 }

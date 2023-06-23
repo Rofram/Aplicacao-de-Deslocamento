@@ -1,8 +1,9 @@
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { SlideTransition } from '@/components/ui/SlideTransition';
+import { SlideTransition } from '@/components/transitions/SlideTransition';
+import ErrorBoundary from '@/components/utils/ErrorBoundary';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
+import SyncIcon from '@mui/icons-material/Sync';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Paper, TextField, Tooltip, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment } from 'react';
@@ -11,7 +12,8 @@ import { useVeiculoHook } from "./hook";
 export function VeiculoPageTemplate() {
   const { 
     veiculos,
-    isVeiculosLoading,
+    handleSync,
+    isLoadingVeiculos,
     handleOpenCreateModal,
     handleCloseCreateModal,
     handleOpenEditModal,
@@ -82,11 +84,22 @@ export function VeiculoPageTemplate() {
       <Paper sx={{ alignSelf: "center", justifySelf: "center", width: "100%", height: "90%", padding: "20px", display: "flex", flexDirection: "column" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4">Veiculos</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Veiculo</Button>
+          <Box>
+            <Tooltip title="Sincronizar Veiculos">
+              <Button 
+                variant="contained"
+                color="primary"
+                onClick={handleSync}
+              >
+                <SyncIcon />
+              </Button>
+            </Tooltip>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Veiculo</Button>
+          </Box>
         </Box>
         <Box mt={2} height="93%" width="100%">
           <ErrorBoundary>
-            <DataGrid columns={veiculosGridColumns} loading={isVeiculosLoading} rows={veiculos} />
+            <DataGrid columns={veiculosGridColumns} loading={isLoadingVeiculos} rows={veiculos} />
           </ErrorBoundary>
         </Box>
       </Paper>

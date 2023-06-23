@@ -1,10 +1,24 @@
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { SlideTransition } from '@/components/ui/SlideTransition';
+import { SlideTransition } from '@/components/transitions/SlideTransition';
+import ErrorBoundary from '@/components/utils/ErrorBoundary';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import SyncIcon from '@mui/icons-material/Sync';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Paper, TextField, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Modal,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography
+} from "@mui/material";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,8 +29,8 @@ import { useCondutorHook } from "./hook";
 export function CondutorPageTemplate() {
   const { 
     condutores,
-    refetch,
-    isCondutoresLoading,
+    handleSync,
+    isLoadingCondutores,
     handleOpenCreateModal,
     handleCloseCreateModal,
     handleOpenEditModal,
@@ -97,7 +111,7 @@ export function CondutorPageTemplate() {
               <Button 
                 variant="contained"
                 color="primary"
-                onClick={() => refetch()}
+                onClick={handleSync}
               >
                 <SyncIcon />
               </Button>
@@ -107,7 +121,7 @@ export function CondutorPageTemplate() {
         </Box>
         <Box mt={2} height="93%" width="100%">
           <ErrorBoundary>
-            <DataGrid columns={condutoresGridColumns} loading={isCondutoresLoading} rows={condutores} />
+            <DataGrid columns={condutoresGridColumns} loading={isLoadingCondutores} rows={condutores} />
           </ErrorBoundary>
         </Box>
       </Paper>

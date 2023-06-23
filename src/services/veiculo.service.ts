@@ -1,4 +1,4 @@
-import { Veiculo } from '@/interfaces';
+import type { Veiculo } from '@/entities';
 import api from './api';
 
 export type CreateVeiculoPayload = Omit<Veiculo, 'id'>;

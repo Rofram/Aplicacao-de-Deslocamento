@@ -11,11 +11,12 @@ return <ClientePageTemplate />
 export default ClientPage;
 
 export async function getStaticProps() {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient();
   await queryClient.prefetchQuery([QUERY.ALL_CLIENTES], getAxiosData(getAllClientes));
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 60,
   }
 }

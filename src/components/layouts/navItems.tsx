@@ -6,10 +6,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Link from 'next/link';
-import * as React from 'react';
+import { Fragment } from 'react';
 
 export const navItems = (
-  <React.Fragment>
+  <Fragment>
     <ListItemButton LinkComponent={Link} href="/clientes">
       <ListItemIcon>
         <PersonIcon />
@@ -34,5 +34,5 @@ export const navItems = (
       </ListItemIcon>
       <ListItemText primary="Veiculos" />
     </ListItemButton>
-  </React.Fragment>
+  </Fragment>
 );

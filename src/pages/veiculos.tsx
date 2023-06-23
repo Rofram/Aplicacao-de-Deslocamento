@@ -11,11 +11,12 @@ function VeiculoPage() {
 export default VeiculoPage;
 
 export async function getStaticProps() {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient();
   await queryClient.prefetchQuery([QUERY.ALL_VEICULOS], getAxiosData(getAllVeiculos));
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 60,
   }
 }

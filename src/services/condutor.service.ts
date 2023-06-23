@@ -1,4 +1,4 @@
-import type { Condutor } from '@/interfaces';
+import type { Condutor } from '@/entities';
 import api from './api';
 
 export type CreateCondutorPayload = Omit<Condutor, 'id'>;

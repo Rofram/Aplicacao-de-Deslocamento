@@ -1,5 +1,5 @@
 import { QUERY } from "@/constants";
-import { Veiculo } from "@/interfaces";
+import type { Veiculo } from "@/entities";
 import { createVeiculo, deleteVeiculo, getAllVeiculos, updateVeiculo } from "@/services/veiculo.service";
 import { getAxiosData } from "@/utils/getAxiosData";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +28,11 @@ export function useVeiculoHook() {
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [isDialogDeleteOpen, setIsDialogDeleteOpen] = useState(false);
-  const { data, isLoading } = useQuery({ queryKey: [QUERY.ALL_VEICULOS], queryFn: getAxiosData(getAllVeiculos) });
+  const { 
+    data: veiculos = [], 
+    isLoading: isLoadingVeiculos, 
+    refetch 
+  } = useQuery({ queryKey: [QUERY.ALL_VEICULOS], queryFn: getAxiosData(getAllVeiculos) });
   const queryClient = useQueryClient();
   const { 
     register: createRegister, 
@@ -43,6 +47,16 @@ export function useVeiculoHook() {
     reset: updateReset,
     setValue: updateSetValue
   } = useForm<z.infer<typeof updateVeiculoSchema>>({ resolver: zodResolver(updateVeiculoSchema) });
+
+  async function handleSync() {
+    const toastRef = toast('Sincronizando veiculos...', { isLoading: true, autoClose: false });
+    const { status } = await refetch();
+    if (status === 'success') {
+      toast.update(toastRef, { type: toast.TYPE.INFO, render: 'Veiculos sincronizados.', isLoading: false, autoClose: 2000 });
+    } else {
+      toast.update(toastRef, { type: toast.TYPE.ERROR, render: 'Erro ao sincronizar veiculos.', isLoading: false, autoClose: 2000 });
+    }
+  }
 
   const handleSubmitCreate = createHandleSubmit(async (data) => {
     const toastRef = toast('Cadastrando veiculo...', { autoClose: false, isLoading: true }); 
@@ -117,8 +131,9 @@ export function useVeiculoHook() {
   }
   
   return {
-    veiculos: data ?? [],
-    isVeiculosLoading: isLoading,
+    veiculos,
+    handleSync,
+    isLoadingVeiculos,
     selectedVeiculo,
     isModalCreateOpen,
     isModalEditOpen,

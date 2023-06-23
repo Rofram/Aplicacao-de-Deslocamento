@@ -1,4 +1,4 @@
-import type { Cliente } from '@/interfaces';
+import type { Cliente } from '@/entities';
 import api from './api';
 
 export type CreateClientePayload = Omit<Cliente, 'id'>;

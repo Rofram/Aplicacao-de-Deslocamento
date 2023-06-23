@@ -1,5 +1,5 @@
 import { QUERY } from "@/constants";
-import { Condutor } from "@/interfaces";
+import type { Condutor } from "@/entities";
 import { createCondutor, deleteCondutor, getAllCondutores, updateCondutor } from "@/services/condutor.service";
 import { getAxiosData } from "@/utils/getAxiosData";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,7 +29,11 @@ export function useCondutorHook() {
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [isDialogDeleteOpen, setIsDialogDeleteOpen] = useState(false);
-  const { data, isLoading, refetch } = useQuery({ queryKey: [QUERY.ALL_CONDUTORES], queryFn: getAxiosData(getAllCondutores) });
+  const { 
+    data: condutores = [], 
+    isLoading: isLoadingCondutores, 
+    refetch 
+  } = useQuery({ queryKey: [QUERY.ALL_CONDUTORES], queryFn: getAxiosData(getAllCondutores) });
   const queryClient = useQueryClient();
   const { 
     register: createRegister, 
@@ -45,6 +49,16 @@ export function useCondutorHook() {
     reset: updateReset,
     setValue: updateSetValue
   } = useForm<z.infer<typeof updateCondutorSchema>>({ resolver: zodResolver(updateCondutorSchema) });
+
+  async function handleSync() {
+    const toastRef = toast('Sincronizando condutores...', { isLoading: true, autoClose: false });
+    const { status } = await refetch();
+    if (status === 'success') {
+      toast.update(toastRef, { type: toast.TYPE.INFO, render: 'Condutores sincronizados.', isLoading: false, autoClose: 2000 });
+    } else {
+      toast.update(toastRef, { type: toast.TYPE.ERROR, render: 'Erro ao sincronizar condutores.', isLoading: false, autoClose: 2000 });
+    }
+  }
 
   const handleSubmitCreate = createHandleSubmit(async (data) => {
     const toastRef = toast('Cadastrando condutor...', { autoClose: false, isLoading: true }); 
@@ -132,9 +146,9 @@ export function useCondutorHook() {
   }
 
   return {
-    condutores: data ?? [],
-    refetch,
-    isCondutoresLoading: isLoading,
+    condutores,
+    handleSync,
+    isLoadingCondutores,
     selectedCondutor,
     isModalCreateOpen,
     isModalEditOpen,

@@ -1,9 +1,24 @@
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { SlideTransition } from '@/components/ui/SlideTransition';
+import { SlideTransition } from '@/components/transitions/SlideTransition';
+import ErrorBoundary from '@/components/utils/ErrorBoundary';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Paper, TextField, Tooltip, Typography } from "@mui/material";
+import SyncIcon from '@mui/icons-material/Sync';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Modal,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography
+} from "@mui/material";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Fragment } from 'react';
 import { useClienteHook } from "./hook";
@@ -11,7 +26,8 @@ import { useClienteHook } from "./hook";
 export function ClientePageTemplate() {
   const { 
     clientes,
-    isClientesLoading,
+    handleSync,
+    isLoadingClientes,
     handleOpenCreateModal,
     handleCloseCreateModal,
     handleEditClient,
@@ -98,11 +114,22 @@ export function ClientePageTemplate() {
       <Paper sx={{ mt: 2, alignSelf: "center", justifySelf: "center", width: "100%", height: "90%", padding: "20px", display: "flex", flexDirection: "column" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4">Clientes</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Cliente</Button>
+          <Box display="flex" gap={1} alignItems="center">
+            <Tooltip title="Sincronizar Clientes">
+              <Button 
+                variant="contained"
+                color="primary"
+                onClick={handleSync}
+              >
+                <SyncIcon />
+              </Button>
+            </Tooltip>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Cliente</Button>
+          </Box>
         </Box>
         <Box mt={2} height="93%" width="100%">
           <ErrorBoundary>
-            <DataGrid columns={clientesGridColumns} loading={isClientesLoading} rows={clientes} />
+            <DataGrid columns={clientesGridColumns} loading={isLoadingClientes} rows={clientes} />
           </ErrorBoundary>
         </Box>
       </Paper>
@@ -124,7 +151,7 @@ export function ClientePageTemplate() {
               margin="dense"
               label="Nome"
               fullWidth
-              variant="standard"
+              variant="outlined"
               error={!!createErrors.nome}
               helperText={createErrors.nome?.message}
               {...createRegister('nome')}
@@ -134,7 +161,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Tipo do Documento"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!createErrors.tipoDocumento}
                 helperText={createErrors.tipoDocumento?.message}
                 {...createRegister('tipoDocumento')}
@@ -143,7 +170,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Numero do Documento"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!createErrors.numeroDocumento}
                 helperText={createErrors.numeroDocumento?.message}
                 {...createRegister('numeroDocumento')}
@@ -154,7 +181,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Logradouro"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!createErrors.logradouro}
                 helperText={createErrors.logradouro?.message}
                 {...createRegister('logradouro')}
@@ -162,7 +189,8 @@ export function ClientePageTemplate() {
               <TextField
                 margin="dense"
                 label="N°"
-                variant="standard"
+                type="number"
+                variant="outlined"
                 error={!!createErrors.numero}
                 helperText={createErrors.numero?.message}
                 {...createRegister('numero')}
@@ -173,7 +201,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Bairro"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!createErrors.bairro}
                 helperText={createErrors.bairro?.message}
                 {...createRegister('bairro')}
@@ -182,7 +210,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Cidade"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!createErrors.cidade}
                 helperText={createErrors.cidade?.message}
                 {...createRegister('cidade')}
@@ -191,7 +219,7 @@ export function ClientePageTemplate() {
             <TextField
               margin="dense"
               label="UF"
-              variant="standard"
+              variant="outlined"
               error={!!createErrors.uf}
               helperText={createErrors.uf?.message}
               {...createRegister('uf')}
@@ -222,7 +250,7 @@ export function ClientePageTemplate() {
               margin="dense"
               label="Nome"
               fullWidth
-              variant="standard"
+              variant="outlined"
               error={!!updateErrors.nome}
               helperText={updateErrors.nome?.message}
               {...updateRegister('nome')}
@@ -232,7 +260,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Logradouro"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!updateErrors.logradouro}
                 helperText={updateErrors.logradouro?.message}
                 {...updateRegister('logradouro')}
@@ -240,7 +268,7 @@ export function ClientePageTemplate() {
               <TextField
                 margin="dense"
                 label="N°"
-                variant="standard"
+                variant="outlined"
                 error={!!updateErrors.numero}
                 helperText={updateErrors.numero?.message}
                 {...updateRegister('numero')}
@@ -251,7 +279,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Bairro"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!updateErrors.bairro}
                 helperText={updateErrors.bairro?.message}
                 {...updateRegister('bairro')}
@@ -260,7 +288,7 @@ export function ClientePageTemplate() {
                 margin="dense"
                 label="Cidade"
                 fullWidth
-                variant="standard"
+                variant="outlined"
                 error={!!updateErrors.cidade}
                 helperText={updateErrors.cidade?.message}
                 {...updateRegister('cidade')}
@@ -269,7 +297,7 @@ export function ClientePageTemplate() {
             <TextField
               margin="dense"
               label="UF"
-              variant="standard"
+              variant="outlined"
               error={!!updateErrors.uf}
               helperText={updateErrors.uf?.message}
               {...updateRegister('uf')}

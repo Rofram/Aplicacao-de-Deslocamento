@@ -1,4 +1,4 @@
-import { Deslocamento } from '@/interfaces';
+import type { Deslocamento } from '@/entities';
 import api from './api';
 
 export type CreateDeslocamentoPayload = Omit<Deslocamento, 'id' | 'kmFinal' | 'fimDeslocamento'>;

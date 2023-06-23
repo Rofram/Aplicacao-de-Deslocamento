@@ -11,7 +11,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const toggleDrawer = useSidebarStore(selector => selector.toggle);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box display='flex'>
       <AppBar position="absolute" open={isOpen}>
         <Toolbar
           sx={{
