@@ -10,24 +10,24 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 const createClienteSchema = z.object({
-  nome: z.string().min(1, "Campo Obrigatório"),
-  numeroDocumento: z.string().min(1, "Campo Obrigatório"),
-  tipoDocumento: z.string().min(1, "Campo Obrigatório"),
-  logradouro: z.string().min(1, "Campo Obrigatório"),
-  numero: z.string().min(1, "Campo Obrigatório"),
-  bairro: z.string().min(1, "Campo Obrigatório"),
-  cidade: z.string().min(1, "Campo Obrigatório"),
-  uf: z.string().min(1, "Campo Obrigatório"),
+  nome: z.string().nonempty("Campo Obrigatório"),
+  numeroDocumento: z.string().nonempty("Campo Obrigatório"),
+  tipoDocumento: z.string().nonempty("Campo Obrigatório"),
+  logradouro: z.string().nonempty("Campo Obrigatório"),
+  numero: z.string().nonempty("Campo Obrigatório"),
+  bairro: z.string().nonempty("Campo Obrigatório"),
+  cidade: z.string().nonempty("Campo Obrigatório"),
+  uf: z.string().nonempty("Campo Obrigatório"),
 });
 
 const updateClienteSchema = z.object({
   id: z.coerce.number(),
-  nome: z.string().min(1, "Campo Obrigatório"),
-  logradouro: z.string().min(1, "Campo Obrigatório"),
-  numero: z.string().min(1, "Campo Obrigatório"),
-  bairro: z.string().min(1, "Campo Obrigatório"),
-  cidade: z.string().min(1, "Campo Obrigatório"),
-  uf: z.string().min(1, "Campo Obrigatório"),
+  nome: z.string().nonempty("Campo Obrigatório"),
+  logradouro: z.string().nonempty("Campo Obrigatório"),
+  numero: z.string().nonempty("Campo Obrigatório"),
+  bairro: z.string().nonempty("Campo Obrigatório"),
+  cidade: z.string().nonempty("Campo Obrigatório"),
+  uf: z.string().nonempty("Campo Obrigatório"),
 });
 
 export function useClienteHook() {

@@ -1,5 +1,5 @@
 import { QUERY } from "@/constants";
-import type { Condutor } from "@/entities";
+import type { Deslocamento } from "@/entities";
 import { getAllClientes } from "@/services/cliente.service";
 import { getAllCondutores } from "@/services/condutor.service";
 import { createDeslocamento, deleteDeslocamento, encerrarDeslocamento, getAllDeslocamentos } from "@/services/deslocamento.service";
@@ -13,15 +13,20 @@ import { useForm } from "react-hook-form";
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
+const inputSelect = z.object({
+  label: z.string(),
+  id: z.number(),
+})
+
 const createDeslocamentoSchema = z.object({
-  kmInicial: z.coerce.number().min(0, "Campo Obrigatório"),
-  inicioDeslocamento: z.string().min(1, "Campo Obrigatório"),
-  checkList: z.string().min(1, "Campo Obrigatório"),
-  motivo: z.string().min(1, "Campo Obrigatório"),
-  observacao: z.string().min(1, "Campo Obrigatório"),
-  idCondutor: z.coerce.number().min(0, "Campo Obrigatório"),
-  idVeiculo: z.coerce.number().min(0, "Campo Obrigatório"),
-  idCliente: z.coerce.number().min(0, "Campo Obrigatório"),
+  kmInicial: z.coerce.number().nonnegative("Valor não pode ser negativo"),
+  inicioDeslocamento: z.string().nonempty("Campo Obrigatório"),
+  checkList: z.string().nonempty("Campo Obrigatório"),
+  motivo: z.string().nonempty("Campo Obrigatório"),
+  observacao: z.string().nonempty("Campo Obrigatório"),
+  idCondutor: z.string().nonempty("Campo Obrigatório"),
+  idVeiculo: z.string().nonempty("Campo Obrigatório"),
+  idCliente: z.string().nonempty("Campo Obrigatório"),
 });
 
 const updateDeslocamentoSchema = z.object({
@@ -32,7 +37,7 @@ const updateDeslocamentoSchema = z.object({
 });
 
 export function useDeslocamentoHook() {
-  const [selectedDeslocamento, setSelectedDeslocamento] = useState<Condutor>();
+  const [selectedDeslocamento, setSelectedDeslocamento] = useState<Deslocamento>();
   const [inicioDeslocamento, setInicioDeslocamento] = useState<Dayjs>();
   const [fimDeslocamento, setFimDeslocamento] = useState<Dayjs>();
   const [isModalCreateOpen, setIsModalCreateOpen] = useState(false);
@@ -72,7 +77,7 @@ export function useDeslocamentoHook() {
   } = useForm<z.infer<typeof updateDeslocamentoSchema>>({ resolver: zodResolver(updateDeslocamentoSchema) });
 
   async function handleSync() {
-    const toastRef = toast('Sincronizando condutores...', { isLoading: true, autoClose: false });
+    const toastRef = toast('Sincronizando deslocamentos...', { isLoading: true, autoClose: false });
     const refetchs = await Promise.all([
       refetchDeslocamentos(), 
       refetchCondutores(), 
@@ -83,14 +88,14 @@ export function useDeslocamentoHook() {
     if (isSuccess) {
       toast.update(toastRef, { 
         type: toast.TYPE.INFO, 
-        render: 'Condutores sincronizados.', 
+        render: 'Deslocamentos sincronizados.', 
         isLoading: false, 
         autoClose: 2000 
       });
     } else {
       toast.update(toastRef, { 
         type: toast.TYPE.ERROR, 
-        render: 'Erro ao sincronizar condutores.', 
+        render: 'Erro ao sincronizar deslocamentos.', 
         isLoading: false, 
         autoClose: 2000 
       });
@@ -99,7 +104,12 @@ export function useDeslocamentoHook() {
 
   const handleSubmitCreate = createHandleSubmit(async (data) => {
     const toastRef = toast('Cadastrando deslocamento...', { autoClose: false, isLoading: true }); 
-    const { status } = await createDeslocamento(data);
+    const { status } = await createDeslocamento({
+      ...data,
+      idCliente: +data.idCliente.split('-')[0].trim(),
+      idCondutor: +data.idCondutor.split('-')[0].trim(),
+      idVeiculo: +data.idVeiculo.split('-')[0].trim(),
+    });
     if (status === 200) {
       toast.update(toastRef, { 
         type: toast.TYPE.SUCCESS, 
@@ -138,12 +148,12 @@ export function useDeslocamentoHook() {
   }
 
   const handleSubmitUpdate = updateHandleSubmit(async (data) => {
-    const toastRef = toast('Atualizando deslocamento...', { isLoading: true, autoClose: false });
+    const toastRef = toast('Finalizando deslocamento...', { isLoading: true, autoClose: false });
     const { status } = await encerrarDeslocamento(data);
     if (status === 200) {
       toast.update(toastRef, { 
         type: toast.TYPE.INFO, 
-        render: 'Deslocamento encerrado.', 
+        render: 'Deslocamento Finalizado.', 
         isLoading: false, 
         autoClose: 2000  
       });
@@ -152,7 +162,7 @@ export function useDeslocamentoHook() {
     } else {
       toast.update(toastRef, { 
         type: toast.TYPE.ERROR, 
-        render: 'Erro ao encerrar deslocamento!', 
+        render: 'Erro ao finalizar deslocamento!', 
         isLoading: false, 
         autoClose: 2000 
       });
@@ -166,11 +176,11 @@ export function useDeslocamentoHook() {
     }
   }
 
-  function handleOpenEditModal(cliente: Condutor) {
+  function handleOpenEditModal(deslocamento: Deslocamento) {
     return () => {
-      for (const [key, value] of Object.entries(cliente)) {
+      for (const [key, value] of Object.entries(deslocamento)) {
         updateSetValue(key as keyof z.infer<typeof updateDeslocamentoSchema>, value);
-        if (key === 'vencimentoHabilitacao') {
+        if (key === 'fimDeslocamento') {
           const fim = dayjs(value ?? new Date());
           setFimDeslocamento(fim);
           updateSetValue('fimDeslocamento', dayjs(fim).toISOString());
@@ -185,9 +195,9 @@ export function useDeslocamentoHook() {
     updateReset();
   }
 
-  function handleOpenDeleteDialog(cliente: Condutor) {
+  function handleOpenDeleteDialog(deslocamento: Deslocamento) {
     return () => {
-      setSelectedDeslocamento(cliente);
+      setSelectedDeslocamento(deslocamento);
       setIsDialogDeleteOpen(true);
     }
   }

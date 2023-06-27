@@ -11,16 +11,16 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 const createCondutorSchema = z.object({
-  nome: z.string().min(1, "Campo Obrigatório"),
-  numeroHabilitacao: z.string().min(1, "Campo Obrigatório"),
-  catergoriaHabilitacao: z.string().min(1, "Campo Obrigatório"),
-  vencimentoHabilitacao: z.string().min(1, "Campo Obrigatório"),
+  nome: z.string().nonempty("Campo Obrigatório"),
+  numeroHabilitacao: z.string().nonempty("Campo Obrigatório"),
+  catergoriaHabilitacao: z.string().nonempty("Campo Obrigatório"),
+  vencimentoHabilitacao: z.string().nonempty("Campo Obrigatório"),
 });
 
 const updateCondutorSchema = z.object({
   id: z.coerce.number(),
-  catergoriaHabilitacao: z.string().min(1, "Campo Obrigatório"),
-  vencimentoHabilitacao: z.string().min(1, "Campo Obrigatório"),
+  catergoriaHabilitacao: z.string().nonempty("Campo Obrigatório"),
+  vencimentoHabilitacao: z.string().nonempty("Campo Obrigatório"),
 });
 
 export function useCondutorHook() {

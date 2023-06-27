@@ -7,6 +7,7 @@
     "url": "https://github.com/Rofram"
   },
   "scripts": {
+    "initialize:project": "npm install && npm run build && npm run start",
     "dev": "next dev",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' next dev",
     "build": "next build",

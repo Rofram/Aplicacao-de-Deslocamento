@@ -91,7 +91,7 @@ export function ClientePageTemplate() {
     {
       field: "",
       headerName: "Ações",
-      width: 130,
+      width: 120,
       renderCell: (cell) => (
         <Box display="flex" gap={1}>
           <Tooltip title="Editar">

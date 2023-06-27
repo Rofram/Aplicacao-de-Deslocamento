@@ -3,12 +3,12 @@ import { getAllClientes } from '@/services/cliente.service';
 import { getAllCondutores } from '@/services/condutor.service';
 import { getAllDeslocamentos } from '@/services/deslocamento.service';
 import { getAllVeiculos } from '@/services/veiculo.service';
-import { CondutorPageTemplate } from '@/templates/Condutor';
+import { DeslocamentoPageTemplate } from '@/templates/Deslocamento';
 import { getAxiosData } from '@/utils/getAxiosData';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 function DeslocamentoPage() {
-  return <CondutorPageTemplate />
+  return <DeslocamentoPageTemplate />
 }
 
 export default DeslocamentoPage;

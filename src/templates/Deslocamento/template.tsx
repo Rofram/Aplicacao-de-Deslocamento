@@ -2,9 +2,10 @@ import { SlideTransition } from '@/components/transitions/SlideTransition';
 import ErrorBoundary from '@/components/utils/ErrorBoundary';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import EditIcon from '@mui/icons-material/Edit';
+import FlagIcon from '@mui/icons-material/Flag';
 import SyncIcon from '@mui/icons-material/Sync';
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -26,11 +27,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Fragment } from 'react';
 import { useDeslocamentoHook } from "./hook";
 
-export function CondutorPageTemplate() {
+export function DeslocamentoPageTemplate() {
   const { 
     deslocamentos,
+    clientes,
+    condutores,
+    veiculos,
     handleSync,
-    isDeslocamentosLoading,
     handleOpenCreateModal,
     handleCloseCreateModal,
     handleOpenEditModal,
@@ -48,6 +51,7 @@ export function CondutorPageTemplate() {
     handleCloseDeleteDialog,
     handleChangeDateCreateModal,
     fimDeslocamento,
+    isLoadingDeslocamentos,
     handleChangeDateUpdateModal,
     handleDeleteDeslocamento,
     inicioDeslocamento,
@@ -62,56 +66,71 @@ export function CondutorPageTemplate() {
     {
       field: 'idCliente',
       headerName: "Cliente",
-      width: 200,
+      width: 160,
       renderCell(params) {
-        return '';
+        return clientes.find(cliente => cliente.id === params.value)?.nome;
       }
     },
     {
       field: "idCondutor",
       headerName: "Condutor",
-      width: 200,
+      width: 160,
       renderCell(params) {
-        return '';
+        return condutores.find(condutor => condutor.id === params.value)?.nome;
       }
     },
     {
       field: "idVeiculo",
       headerName: "Veiculo",
-      width: 250,
+      width: 160,
       renderCell(params) {
-        return '';
+        return veiculos.find(veiculo => veiculo.id === params.value)?.marcaModelo;
       }
     },
     {
       field: "inicioDeslocamento",
       headerName: "Inicio do Deslocamento",
-      width: 200,
+      width: 180,
       renderCell(params) {
-          return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(params.value));
+          return new Intl.DateTimeFormat('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' ,
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric', 
+          }).format(new Date(params.value));
       },
     },
     {
       field: "fimDeslocamento",
       headerName: "Fim do Deslocamento",
-      width: 200,
+      width: 180,
       renderCell(params) {
-          return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(params.value));
+        const formatter = new Intl.DateTimeFormat('pt-BR', { 
+          hour: '2-digit', 
+          minute: '2-digit' ,
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+        })
+        return params.value ? formatter.format(new Date(params.value)) : 'Ainda não finalizado';
       },
     },
     {
       field: "",
       headerName: "Ações",
       width: 200,
-      renderCell: (cell) => (
+      renderCell: (params) => (
         <Box display="flex" gap={1}>
-          <Tooltip title="Editar">
-            <IconButton onClick={handleOpenEditModal(cell.row)}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
+          {!params.row.fimDeslocamento && (
+            <Tooltip title="Finalizar Deslocamento">
+              <IconButton onClick={handleOpenEditModal(params.row)}>
+                <FlagIcon />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="Excluir">
-            <IconButton onClick={handleOpenDeleteDialog(cell.row)}>
+            <IconButton onClick={handleOpenDeleteDialog(params.row)}>
               <DeleteForeverIcon />
             </IconButton>
           </Tooltip>
@@ -124,9 +143,9 @@ export function CondutorPageTemplate() {
     <Fragment>
       <Paper sx={{ alignSelf: "center", justifySelf: "center", width: "100%", height: "90%", padding: "20px", display: "flex", flexDirection: "column" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4">Condutores</Typography>
+          <Typography variant="h4">Deslocamento</Typography>
           <Box display='flex' gap={2} alignItems='center'>
-            <Tooltip title="Sincronizar Condutores">
+            <Tooltip title="Sincronizar Deslocamento">
               <Button 
                 variant="contained"
                 color="primary"
@@ -135,66 +154,128 @@ export function CondutorPageTemplate() {
                 <SyncIcon />
               </Button>
             </Tooltip>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Condutor</Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateModal}>Cadastrar Deslocamento</Button>
           </Box>
         </Box>
         <Box mt={2} height="93%" width="100%">
           <ErrorBoundary>
-            <DataGrid columns={deslocamentosGridColumns} loading={isDeslocamentosLoading} rows={deslocamentos} />
+            <DataGrid columns={deslocamentosGridColumns} loading={isLoadingDeslocamentos} rows={deslocamentos} />
           </ErrorBoundary>
         </Box>
       </Paper>
       <Modal 
         open={isModalCreateOpen}
         onClose={handleCloseCreateModal}
-        aria-labelledby="Modal Cadastro de Cliente"
-        aria-describedby="Modal para Cadastro de Cliente"
+        aria-labelledby="Modal Cadastro de Deslocamento"
+        aria-describedby="Modal para Cadastro de Deslocamento"
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
       >
         <Paper sx={{  display: 'flex', flexDirection: 'column', p: 2, gap: 2, width: '100%', maxWidth: '800px' }}>
-          <Typography variant='h4'>Cadastrar Condutor</Typography>
+          <Typography variant='h4'>Cadastrar Deslocamento</Typography>
           <Typography variant='body1' color='text.secondary'>
-            Preencha os campos abaixo para cadastrar um novo condutor.
+            Preencha os campos abaixo para cadastrar um novo deslocamento.
           </Typography>
           <form onSubmit={handleSubmitCreate}>
+            <Box display='flex' gap={1} alignItems="center">
+              <TextField
+                autoFocus
+                margin="dense"
+                type="number"
+                label="Quilometragem Inicial"
+                variant="outlined"
+                error={!!createErrors.kmInicial}
+                helperText={createErrors.kmInicial?.message}
+                {...createRegister('kmInicial')}
+              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Vencimento da Habilitação"
+                  defaultValue={inicioDeslocamento}
+                  onChange={handleChangeDateCreateModal}
+                />
+              </LocalizationProvider>
+            </Box>
+            <Box display="flex" my={1} gap={1}>
+              <Autocomplete 
+                options={condutores.map(condutor => `${condutor.id} - ${condutor.nome}`)}
+                fullWidth
+                disablePortal
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    margin="dense"
+                    label="Condutor"
+                    variant="outlined"
+                    error={!!createErrors.idCondutor}
+                    helperText={createErrors.idCondutor?.message}
+                    {...createRegister('idCondutor')}
+                  />
+                )}
+              />
+              <Autocomplete 
+                options={clientes.map(cliente => `${cliente.id} - ${cliente.nome}`)}
+                fullWidth
+                disablePortal
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    margin="dense"
+                    label="Cliente"
+                    variant="outlined"
+                    error={!!createErrors.idCondutor}
+                    helperText={createErrors.idCondutor?.message}
+                    {...createRegister('idCliente')}
+                  />
+                )}
+              />
+              <Autocomplete 
+                options={veiculos.map(veiculo => `${veiculo.id} - ${veiculo.marcaModelo}`)}
+                fullWidth
+                disablePortal
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    margin="dense"
+                    label="Veiculo"
+                    variant="outlined"
+                    error={!!createErrors.idCondutor}
+                    helperText={createErrors.idCondutor?.message}
+                    {...createRegister('idVeiculo')}
+                  />
+                )}
+              />
+            </Box>
+            <Box display='flex' gap={1}>
+              <TextField
+                autoFocus
+                margin="dense"
+                fullWidth
+                label="Motivo"
+                variant="outlined"
+                error={!!createErrors.motivo}
+                helperText={createErrors.motivo?.message}
+                {...createRegister('motivo')}
+              />
+              <TextField
+                margin="dense"
+                fullWidth
+                label="Checklist"
+                variant="outlined"
+                error={!!createErrors.checkList}
+                helperText={createErrors.checkList?.message}
+                {...createRegister('checkList')}
+              />
+            </Box>
             <TextField
               autoFocus
               margin="dense"
-              label="Nome"
               fullWidth
+              label="Observação"
               variant="outlined"
-              error={!!createErrors.nome}
-              helperText={createErrors.nome?.message}
-              {...createRegister('nome')}
+              error={!!createErrors.observacao}
+              helperText={createErrors.observacao?.message}
+              {...createRegister('observacao')}
             />
-            <Box display="flex" my={1} gap={1}>
-              <TextField
-                margin="dense"
-                label="Categoria da Habilitação"
-                fullWidth
-                variant="outlined"
-                error={!!createErrors.catergoriaHabilitacao}
-                helperText={createErrors.catergoriaHabilitacao?.message}
-                {...createRegister('catergoriaHabilitacao')}
-              />
-              <TextField
-                margin="dense"
-                label="Numero da Habilitação"
-                type='number'
-                fullWidth
-                variant="outlined"
-                error={!!createErrors.numeroHabilitacao}
-                helperText={createErrors.numeroHabilitacao?.message}
-                {...createRegister('numeroHabilitacao')}
-              />
-            </Box>
-            <LocalizationProvider adapterLocale='' dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Vencimento da Habilitação"
-                defaultValue={vencimentoHabilitacao}
-                onChange={handleChangeDateCreateModal}
-              />
-            </LocalizationProvider>
             <Box display="flex" justifyContent="flex-end" gap={1} mt={4}>
               <Button type='button' variant='outlined' onClick={handleCloseCreateModal}>Cancelar</Button>
               <Button type='submit' variant='contained'>Cadastrar</Button>
@@ -210,27 +291,38 @@ export function CondutorPageTemplate() {
         sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
       >
         <Paper sx={{  display: 'flex', flexDirection: 'column', p: 2, gap: 2, width: '100%', maxWidth: '800px' }}>
-          <Typography variant='h4'>Editar Condutor</Typography>
+          <Typography variant='h4'>Finalizar Deslocamento</Typography>
           <Typography variant='body1' color='text.secondary'>
-            Preencha os campos abaixo para atualizar o condutor.
+            Preencha os campos abaixo para finalizar o deslocamento.
           </Typography>
           <form onSubmit={handleSubmitUpdate}>
             <input type="text" style={{ display: 'none' }} {...updateRegister('id')} />
             <TextField
               autoFocus
               margin="dense"
-              label="Categoria da Habilitação"
+              label="Quilometragem Final"
+              type="number"
               fullWidth
               variant="outlined"
-              error={!!updateErrors.catergoriaHabilitacao}
-              helperText={updateErrors.catergoriaHabilitacao?.message}
-              {...updateRegister('catergoriaHabilitacao')}
+              error={!!updateErrors.kmFinal}
+              helperText={updateErrors.kmFinal?.message}
+              {...updateRegister('kmFinal')}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Observação"
+              fullWidth
+              variant="outlined"
+              error={!!updateErrors.observacao}
+              helperText={updateErrors.observacao?.message}
+              {...updateRegister('observacao')}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Vencimento da Habilitação"
-                value={vencimentoHabilitacao}
-                onChange={handleChangeDateCreateModal}
+                value={fimDeslocamento}
+                onChange={handleChangeDateUpdateModal}
               />
             </LocalizationProvider>
             <Box display="flex" justifyContent="flex-end" gap={1} mt={4}>
@@ -247,15 +339,15 @@ export function CondutorPageTemplate() {
         TransitionComponent={SlideTransition}
         aria-describedby="deletar cliente dialog"
       >
-        <DialogTitle>Deletar Condutor: {selectedCondutor?.nome}</DialogTitle>
+        <DialogTitle>Deletar Deslocamento: {selectedDeslocamento?.id}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            Tem certeza que deseja deletar este condutor?
+            Tem certeza que deseja deletar este deslocamento?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
-          <Button color="error" onClick={handleDeleteCondutor}>Deletar</Button>
+          <Button color="error" onClick={handleDeleteDeslocamento}>Deletar</Button>
         </DialogActions>
       </Dialog>
     </Fragment>

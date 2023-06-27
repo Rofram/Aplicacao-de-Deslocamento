@@ -84,7 +84,7 @@ export function VeiculoPageTemplate() {
       <Paper sx={{ alignSelf: "center", justifySelf: "center", width: "100%", height: "90%", padding: "20px", display: "flex", flexDirection: "column" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4">Veiculos</Typography>
-          <Box>
+          <Box display="flex" gap={1}>
             <Tooltip title="Sincronizar Veiculos">
               <Button 
                 variant="contained"

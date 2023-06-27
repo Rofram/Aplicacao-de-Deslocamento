@@ -10,8 +10,8 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 const createVeiculoSchema = z.object({
-  marcaModelo: z.string().min(1, "Campo Obrigatório"),
-  placa: z.string().min(1, "Campo Obrigatório"),
+  marcaModelo: z.string().nonempty("Campo Obrigatório"),
+  placa: z.string().nonempty("Campo Obrigatório"),
   anoFabricacao: z.coerce.number().min(1, "Campo Obrigatório"),
   kmAtual: z.coerce.number().min(0, "Campo Obrigatório"),
 });
